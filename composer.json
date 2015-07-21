@@ -1,6 +1,6 @@
 {
-  "name": "tourze/nosql",
-  "description": "NoSQL相关类库",
+  "name": "tourze/model",
+  "description": "模型处理",
   "minimum-stability": "stable",
   "license": "proprietary",
   "authors": [
