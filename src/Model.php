@@ -15,7 +15,7 @@ use tourze\Base\Helper\Arr;
 use tourze\Model\Exception\ColumnNotFoundException;
 use tourze\Model\Exception\ModelException;
 use tourze\Model\Exception\ValidationException;
-use tourze\Model\Support\Dbal;
+use tourze\Model\Support\ActiveRecord;
 use tourze\Model\Support\Finder;
 use tourze\Base\Security\Validation;
 use serializable;
@@ -29,7 +29,7 @@ use serializable;
 class Model extends Object implements serializable, Finder
 {
 
-    use Dbal;
+    use ActiveRecord;
 
     /**
      * 保存字段缓存

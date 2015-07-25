@@ -7,7 +7,7 @@ namespace tourze\Model\Support;
  *
  * @package tourze\Model\Model\Support
  */
-trait Dbal
+trait ActiveRecord
 {
 
     use Field;
@@ -20,32 +20,67 @@ trait Dbal
     protected $_dbPending = [];
 
     /**
-     * Alias of andWhere()
+     * 格式化字段名
      *
-     * @param   mixed  $column column name or [$column, $alias] or object
-     * @param   string $op     logic operator
-     * @param   mixed  $value  column value
-     *
-     * @return  $this
+     * @param $column
+     * @return string
      */
-    public function where($column, $op, $value)
+    protected function formatColumnName($column)
     {
-        // 默认是当前对象的字段
         if (false === strpos($column, '.'))
         {
             $column = $this->_objectName . '.' . $column;
         }
 
-        $variable = 'v'.md5($column . md5(serialize($value)));
+        return $column;
+    }
 
-        $this->_dbPending[] = [
-            'name' => 'where',
-            'args' => ["$column $op :$variable"],
-        ];
-        $this->_dbPending[] = [
-            'name' => 'setParameter',
-            'args' => [$variable, $value],
-        ];
+    /**
+     * 精简条件查询
+     *
+     * @param   mixed  $column 字段名，或附加的查询字符串
+     * @param   string $op     操作符
+     * @param   mixed  $value  字段值
+     * @param   string $dbMethod
+     */
+    protected function parseWhereMethod($column, $op, $value, $dbMethod = 'where')
+    {
+        $column = $this->formatColumnName($column);
+
+        // 如果没有操作符，那么第一个参数就当做完整的查询条件
+        if ($op === null)
+        {
+            $this->_dbPending[] = [
+                'name' => $dbMethod,
+                'args' => [$column],
+            ];
+        }
+        else
+        {
+            $variable = 'v' . md5($column . md5(serialize($value)));
+            $this->_dbPending[] = [
+                'name' => $dbMethod,
+                'args' => ["$column $op :$variable"],
+            ];
+            $this->_dbPending[] = [
+                'name' => 'setParameter',
+                'args' => [$variable, $value],
+            ];
+        }
+    }
+
+    /**
+     * where查询方法，跟[andWhere]的实现差不多
+     *
+     * @param   mixed  $column 字段名，或附加的查询字符串
+     * @param   string $op     操作符
+     * @param   mixed  $value  字段值
+     *
+     * @return  $this
+     */
+    public function where($column, $op = null, $value = null)
+    {
+        $this->parseWhereMethod($column, $op, $value, 'where');
 
         return $this;
     }
@@ -59,24 +94,9 @@ trait Dbal
      *
      * @return  $this
      */
-    public function andWhere($column, $op, $value)
+    public function andWhere($column, $op = null, $value = null)
     {
-        // 默认是当前对象的字段
-        if (false === strpos($column, '.'))
-        {
-            $column = $this->_objectName . '.' . $column;
-        }
-
-        $variable = 'v'.md5($column . md5(serialize($value)));
-
-        $this->_dbPending[] = [
-            'name' => 'andWhere',
-            'args' => ["$column $op :$variable"],
-        ];
-        $this->_dbPending[] = [
-            'name' => 'setParameter',
-            'args' => [$variable, $value],
-        ];
+        $this->parseWhereMethod($column, $op, $value, 'andWhere');
 
         return $this;
     }
@@ -92,34 +112,7 @@ trait Dbal
      */
     public function orWhere($column, $op = null, $value = null)
     {
-        // 默认是当前对象的字段
-        if (false === strpos($column, '.'))
-        {
-            $column = $this->_objectName . '.' . $column;
-        }
-
-        if ($op === null)
-        {
-            $where = $column;
-
-            $this->_dbPending[] = [
-                'name' => 'orWhere',
-                'args' => [$where],
-            ];
-        }
-        else
-        {
-            $variable = 'v'.md5($column . md5(serialize($value)));
-
-            $this->_dbPending[] = [
-                'name' => 'orWhere',
-                'args' => ["$column $op :$variable"],
-            ];
-            $this->_dbPending[] = [
-                'name' => 'setParameter',
-                'args' => [$variable, $value],
-            ];
-        }
+        $this->parseWhereMethod($column, $op, $value, 'orWhere');
 
         return $this;
     }
@@ -157,7 +150,6 @@ trait Dbal
      */
     public function orWhereOpen()
     {
-        // Add pending database call which is executed after query type is determined
         $this->_dbPending[] = [
             'name' => 'orWhereOpen',
             'args' => [],
@@ -183,7 +175,6 @@ trait Dbal
      */
     public function andWhereClose()
     {
-        // Add pending database call which is executed after query type is determined
         $this->_dbPending[] = [
             'name' => 'andWhereClose',
             'args' => [],
@@ -199,7 +190,6 @@ trait Dbal
      */
     public function orWhereClose()
     {
-        // Add pending database call which is executed after query type is determined
         $this->_dbPending[] = [
             'name' => 'orWhereClose',
             'args' => [],
@@ -218,7 +208,6 @@ trait Dbal
      */
     public function orderBy($column, $direction = null)
     {
-        // Add pending database call which is executed after query type is determined
         $this->_dbPending[] = [
             'name' => 'orderBy',
             'args' => [
@@ -256,7 +245,6 @@ trait Dbal
      */
     public function distinct($value)
     {
-        // Add pending database call which is executed after query type is determined
         $this->_dbPending[] = [
             'name' => 'distinct',
             'args' => [$value],
@@ -277,7 +265,6 @@ trait Dbal
     {
         $columns = func_get_args();
 
-        // Add pending database call which is executed after query type is determined
         $this->_dbPending[] = [
             'name' => 'select',
             'args' => $columns,
@@ -298,7 +285,6 @@ trait Dbal
     {
         $tables = func_get_args();
 
-        // Add pending database call which is executed after query type is determined
         $this->_dbPending[] = [
             'name' => 'from',
             'args' => $tables,
