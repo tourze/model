@@ -997,7 +997,7 @@ class Model extends Object implements serializable, Finder
      *
      * @param null $conditions
      *
-     * @return mixed
+     * @return mixed|$this
      * @throws ModelException
      */
     public function findAll($conditions = null)
