@@ -1,6 +1,7 @@
 <?php
 
 namespace tourze\Model\Support;
+use Doctrine\DBAL\Connection;
 
 /**
  * 链式调用的接口实现
@@ -57,15 +58,27 @@ trait ActiveRecord
         }
         else
         {
+            // 根据字段和数值，生成一个hash
             $variable = 'v' . md5($column . md5(serialize($value)));
             $this->_dbPending[] = [
                 'name' => $dbMethod,
                 'args' => ["$column $op :$variable"],
             ];
-            $this->_dbPending[] = [
-                'name' => 'setParameter',
-                'args' => [$variable, $value],
-            ];
+
+            if (is_array($value))
+            {
+                $this->_dbPending[] = [
+                    'name' => 'setParameter',
+                    'args' => [$variable, $value, Connection::PARAM_INT_ARRAY],
+                ];
+            }
+            else
+            {
+                $this->_dbPending[] = [
+                    'name' => 'setParameter',
+                    'args' => [$variable, $value],
+                ];
+            }
         }
     }
 
