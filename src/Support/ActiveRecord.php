@@ -60,13 +60,15 @@ trait ActiveRecord
         {
             // 根据字段和数值，生成一个hash
             $variable = 'v' . md5($column . md5(serialize($value)));
-            $this->_dbPending[] = [
-                'name' => $dbMethod,
-                'args' => ["$column $op :$variable"],
-            ];
 
-            if (is_array($value))
+            // IN特殊处理
+            if ($op == 'IN')
             {
+                $this->_dbPending[] = [
+                    'name' => $dbMethod,
+                    'args' => ["$column $op (:$variable)"],
+                ];
+
                 $this->_dbPending[] = [
                     'name' => 'setParameter',
                     'args' => [$variable, $value, Connection::PARAM_INT_ARRAY],
@@ -74,6 +76,11 @@ trait ActiveRecord
             }
             else
             {
+                $this->_dbPending[] = [
+                    'name' => $dbMethod,
+                    'args' => ["$column $op :$variable"],
+                ];
+
                 $this->_dbPending[] = [
                     'name' => 'setParameter',
                     'args' => [$variable, $value],
