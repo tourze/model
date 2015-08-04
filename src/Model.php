@@ -1292,12 +1292,12 @@ class Model extends Object implements serializable, Finder
             $query->setParameter($k, $v);
         }
 
-        $result = $query->execute();
+        $query->execute();
 
         if ( ! array_key_exists($this->_primaryKey, $data))
         {
             // Load the insert id as the primary key if it was left out
-            $this->_object[$this->_primaryKey] = $this->_primaryKeyValue = $result[0];
+            $this->_object[$this->_primaryKey] = $this->_primaryKeyValue = $this->db()->lastInsertId();
         }
         else
         {
