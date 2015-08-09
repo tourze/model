@@ -256,8 +256,6 @@ class Model extends Object implements serializable, Finder
             $this->db(Db::instance($this->dbGroup()));
         }
 
-        $this->tableName($this->db()->quoteIdentifier($this->tableName()));
-
         // BELONGS TO 关系
         $belongsTo = [];
         $defaults = [];
@@ -1651,7 +1649,7 @@ class Model extends Object implements serializable, Finder
 
         $records = $this->_dbBuilder
             ->select('COUNT(*) as records_found')
-            ->from($this->_tableName, $this->db()->quoteIdentifier($this->_objectName))
+            ->from($this->_tableName, $this->_objectName)
             ->execute()
             ->fetch();
         $records = $records['records_found'];
@@ -1829,7 +1827,7 @@ class Model extends Object implements serializable, Finder
             case Db::UPDATE:
                 $this->_dbBuilder = $this->_db
                     ->createQueryBuilder()
-                    ->update($this->_tableName, $this->db()->quoteIdentifier($this->_objectName));
+                    ->update($this->_tableName, $this->_objectName);
                 break;
             case Db::DELETE:
                 $this->_dbBuilder = $this->_db
@@ -1878,7 +1876,7 @@ class Model extends Object implements serializable, Finder
      */
     protected function _loadResult($multiple = false)
     {
-        $this->_dbBuilder->from($this->_tableName, $this->db()->quoteIdentifier($this->_objectName));
+        $this->_dbBuilder->from($this->_tableName, $this->_objectName);
 
         // 只获取单条记录
         if (false === $multiple)
