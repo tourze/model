@@ -2,6 +2,7 @@
 
 namespace tourze\Model;
 
+use Doctrine\Common\Inflector\Inflector;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\Column;
@@ -262,7 +263,7 @@ class Model extends Object implements serializable, Finder
         {
             if ( ! isset($details['model']))
             {
-                $defaults['model'] = str_replace(' ', '_', ucwords(str_replace('_', ' ', $alias)));
+                $defaults['model'] = Inflector::classify($alias);
             }
 
             $defaults['foreignKey'] = $alias . $this->foreignKeySuffix();
@@ -278,7 +279,7 @@ class Model extends Object implements serializable, Finder
         {
             if ( ! isset($details['model']))
             {
-                $defaults['model'] = str_replace(' ', '_', ucwords(str_replace('_', ' ', $alias)));
+                $defaults['model'] = Inflector::classify($alias);
             }
 
             $defaults['foreignKey'] = $this->objectName() . $this->foreignKeySuffix();
@@ -294,7 +295,7 @@ class Model extends Object implements serializable, Finder
         {
             if ( ! isset($details['model']))
             {
-                $defaults['model'] = str_replace(' ', '_', ucwords(str_replace('_', ' ', $alias)));
+                $defaults['model'] = Inflector::classify($alias);
             }
 
             $defaults['foreignKey'] = $this->objectName() . $this->foreignKeySuffix();
@@ -365,7 +366,7 @@ class Model extends Object implements serializable, Finder
     }
 
     /**
-     * Reloads the current object from the database.
+     * 重新加载当前对象数据
      *
      * @return $this
      */
@@ -390,10 +391,9 @@ class Model extends Object implements serializable, Finder
     }
 
     /**
-     * Checks if object data is set.
+     * 检查指定字段数据存在
      *
      * @param  string $column Column name
-     *
      * @return boolean
      */
     public function __isset($column)
@@ -581,7 +581,7 @@ class Model extends Object implements serializable, Finder
         }
         elseif (isset($this->_hasMany[$column]))
         {
-            $modelClass = $this->_hasMany[$column]['model'];
+            $modelClass = $this->_normalizeRelationClassName($this->_hasMany[$column]['model']);
             /** @var Model $model */
             $model = new $modelClass;
 
@@ -865,11 +865,10 @@ class Model extends Object implements serializable, Finder
     }
 
     /**
-     * Binds another one-to-one object to this model.  One-to-one objects
-     * can be nested using 'object1:object2' syntax
+     * 绑定一个一对一关系到当前对象
+     * One-to-one objects can be nested using 'object1:object2' syntax
      *
      * @param  string $targetPath Target model to bind to
-     *
      * @return Model
      */
     public function with($targetPath)
@@ -1098,7 +1097,7 @@ class Model extends Object implements serializable, Finder
     }
 
     /**
-     * Rule definitions for validation
+     * 过滤规则
      *
      * @return array
      */
@@ -1170,10 +1169,10 @@ class Model extends Object implements serializable, Finder
     }
 
     /**
-     * Filters a value for a specific column
+     * 执行指定指字段的过滤规则
      *
-     * @param  string $field The column name
-     * @param  string $value The value to filter
+     * @param string $field 字段名
+     * @param string $value 过滤的值
      *
      * @return string
      */
@@ -1246,10 +1245,9 @@ class Model extends Object implements serializable, Finder
     }
 
     /**
-     * Insert a new object to the database
+     * 插入新纪录
      *
      * @param  Validation $validation Validation object
-     *
      * @throws ModelException
      * @return Model
      */
@@ -1315,10 +1313,9 @@ class Model extends Object implements serializable, Finder
     }
 
     /**
-     * Updates a single record or multiple records
+     * 更新当前对象
      *
      * @param  Validation $validation Validation object
-     *
      * @throws ModelException
      * @return Model
      */
@@ -1362,7 +1359,7 @@ class Model extends Object implements serializable, Finder
         $id = $this->pk();
         $query = $this->_db->createQueryBuilder()
             ->update($this->_tableName)
-            ->where($this->_primaryKey.' = :id')
+            ->where($this->_primaryKey . ' = :id')
             ->setParameter(':id', $id);
         foreach ($data as $k => $v)
         {
@@ -1388,10 +1385,9 @@ class Model extends Object implements serializable, Finder
     }
 
     /**
-     * Updates or Creates the record depending on loaded()
+     * 更新或创建记录
      *
-     * @param  Validation $validation Validation object
-     *
+     * @param  Validation $validation 附加的Validation对象
      * @return Model
      */
     public function save(Validation $validation = null)
@@ -1404,7 +1400,7 @@ class Model extends Object implements serializable, Finder
     }
 
     /**
-     * Deletes a single record while ignoring relationships.
+     * 删除当前记录
      *
      * @throws ModelException
      * @return Model
@@ -1446,6 +1442,7 @@ class Model extends Object implements serializable, Finder
      * Tests if this object has a relationship to a different model,
      * or an array of different models. When providing far keys, the number
      * of relations must equal the number of keys.
+     *
      *     // Check if $model has the login role
      *     $model->has('roles', self::factory('role', ['name' => 'login']));
      *     // Check for the login role if you know the roles.id is 5
@@ -1457,7 +1454,6 @@ class Model extends Object implements serializable, Finder
      *
      * @param  string $alias   Alias of the hasMany "through" relationship
      * @param  mixed  $farKeys Related model, primary key, or an array of primary keys
-     *
      * @return boolean
      */
     public function has($alias, $farKeys = null)
@@ -1477,6 +1473,7 @@ class Model extends Object implements serializable, Finder
      * Tests if this object has a relationship to a different model,
      * or an array of different models. When providing far keys, this function
      * only checks that at least one of the relationships is satisfied.
+     *
      *     // Check if $model has the login role
      *     $model->has('roles', self::factory('role', ['name' => 'login']));
      *     // Check for the login role if you know the roles.id is 5
@@ -1488,7 +1485,6 @@ class Model extends Object implements serializable, Finder
      *
      * @param  string $alias   Alias of the hasMany "through" relationship
      * @param  mixed  $farKeys Related model, primary key, or an array of primary keys
-     *
      * @return boolean
      */
     public function hasAny($alias, $farKeys = null)
@@ -1497,7 +1493,8 @@ class Model extends Object implements serializable, Finder
     }
 
     /**
-     * Returns the number of relationships
+     * 返回当前的关系数
+     *
      *     // Counts the number of times the login role is attached to $model
      *     $model->countRelations('roles', self::factory('role', ['name' => 'login']));
      *     // Counts the number of times role 5 is attached to $model
@@ -1510,7 +1507,6 @@ class Model extends Object implements serializable, Finder
      *
      * @param  string $alias   Alias of the hasMany "through" relationship
      * @param  mixed  $farKeys Related model, primary key, or an array of primary keys
-     *
      * @return integer
      */
     public function countRelations($alias, $farKeys = null)
@@ -1521,7 +1517,7 @@ class Model extends Object implements serializable, Finder
                 ->createQueryBuilder()
                 ->select('COUNT(*) as records_found')
                 ->from($this->_hasMany[$alias]['through'])
-                ->where($this->_hasMany[$alias]['foreignKey'].' = :pk')
+                ->where($this->_hasMany[$alias]['foreignKey'] . ' = :pk')
                 ->setParameter('pk', $this->pk())
                 ->execute()
                 ->fetch();
@@ -1541,8 +1537,8 @@ class Model extends Object implements serializable, Finder
         $count = $this->_db->createQueryBuilder()
             ->select('COUNT(*) as records_found')
             ->from($this->_hasMany[$alias]['through'])
-            ->where($this->_hasMany[$alias]['foreignKey'].' = :foreignKey')
-            ->where($this->_hasMany[$alias]['farKey'].' IN (:farKeys)')
+            ->where($this->_hasMany[$alias]['foreignKey'] . ' = :foreignKey')
+            ->where($this->_hasMany[$alias]['farKey'] . ' IN (:farKeys)')
             ->setParameter('foreignKey', $this->pk())
             ->setParameter('farKeys', $farKeys, Connection::PARAM_INT_ARRAY)
             ->execute()
@@ -1554,6 +1550,7 @@ class Model extends Object implements serializable, Finder
 
     /**
      * Adds a new relationship to between this model and another.
+     *
      *     // Add the login role using a model instance
      *     $model->add('roles', self::factory('role', ['name' => 'login']));
      *     // Add the login role if you know the roles.id is 5
@@ -1563,7 +1560,6 @@ class Model extends Object implements serializable, Finder
      *
      * @param  string $alias   Alias of the hasMany "through" relationship
      * @param  mixed  $farKeys Related model, primary key, or an array of primary keys
-     *
      * @return Model
      */
     public function add($alias, $farKeys)
@@ -1575,7 +1571,7 @@ class Model extends Object implements serializable, Finder
             ->insert($this->_hasMany[$alias]['through'])
             ->values([
                 $this->_hasMany[$alias]['foreignKey'] => '?',
-                $this->_hasMany[$alias]['farKey'] => '?',
+                $this->_hasMany[$alias]['farKey']     => '?',
             ])
             ->setParameter(0, $foreignKey)
             ->setParameter(1, $farKeys)
@@ -1586,6 +1582,7 @@ class Model extends Object implements serializable, Finder
 
     /**
      * Removes a relationship between this model and another.
+     *
      *     // Remove a role using a model instance
      *     $model->remove('roles', self::factory('role', ['name' => 'login']));
      *     // Remove the role knowing the primary key
@@ -1597,7 +1594,6 @@ class Model extends Object implements serializable, Finder
      *
      * @param  string $alias   Alias of the hasMany "through" relationship
      * @param  mixed  $farKeys Related model, primary key, or an array of primary keys
-     *
      * @return Model
      */
     public function remove($alias, $farKeys = null)
@@ -1606,7 +1602,7 @@ class Model extends Object implements serializable, Finder
 
         $query = $this->_db->createQueryBuilder()
             ->delete($this->_hasMany[$alias]['through'])
-            ->where($this->_hasMany[$alias]['foreignKey'].' = ?')
+            ->where($this->_hasMany[$alias]['foreignKey'] . ' = ?')
             ->setParameter(0, $this->pk());
 
         if (null !== $farKeys)
@@ -1623,11 +1619,6 @@ class Model extends Object implements serializable, Finder
 
     /**
      * 计算表中的记录总数
-     *
-     * @return integer
-     */
-    /**
-     * Count the number of records in the table.
      *
      * @return integer
      */
@@ -1698,7 +1689,6 @@ class Model extends Object implements serializable, Finder
      * Returns an ORM model for the given one-one related alias
      *
      * @param  string $alias Alias name
-     *
      * @return Model
      */
     protected function _related($alias)
@@ -1709,12 +1699,12 @@ class Model extends Object implements serializable, Finder
         }
         elseif (isset($this->_hasOne[$alias]))
         {
-            $modelClass = $this->_hasOne[$alias]['model'];
+            $modelClass = $this->_normalizeRelationClassName($this->_hasOne[$alias]['model']);
             return $this->_related[$alias] = new $modelClass;
         }
         elseif (isset($this->_belongsTo[$alias]))
         {
-            $modelClass = $this->_belongsTo[$alias]['model'];
+            $modelClass = $this->_normalizeRelationClassName($this->_belongsTo[$alias]['model']);
             return $this->_related[$alias] = new $modelClass;
         }
         else
@@ -1734,11 +1724,10 @@ class Model extends Object implements serializable, Finder
     }
 
     /**
-     * Clears query builder.  Passing false is useful to keep the existing
-     * query conditions for another query.
+     * 清除查询器状态和当前已经加载的数据
+     * 如果你想保存当前的查询条件，可以传入false参数
      *
-     * @param bool $next Pass false to avoid resetting on the next call
-     *
+     * @param bool $next 传入false的话，会保存当前的查询条件
      * @return Model
      */
     public function reset($next = true)
@@ -1757,21 +1746,41 @@ class Model extends Object implements serializable, Finder
         return $this;
     }
 
+    /**
+     * 当前对象是否加载成功
+     *
+     * @return bool
+     */
     public function loaded()
     {
         return $this->_loaded;
     }
 
+    /**
+     * 当前对象是否被保存
+     *
+     * @return bool
+     */
     public function saved()
     {
         return $this->_saved;
     }
 
+    /**
+     * 返回当前对象的主键值
+     *
+     * @return string
+     */
     public function primaryKey()
     {
         return $this->_primaryKey;
     }
 
+    /**
+     * 模型的原始数据
+     *
+     * @return array
+     */
     public function originalValues()
     {
         return $this->_originalValues;
@@ -1780,8 +1789,8 @@ class Model extends Object implements serializable, Finder
     /**
      * 检查指定属性的值，是否为唯一值
      *
-     * @param   string $field  检查的字段
-     * @param   mixed  $value  要对比的值
+     * @param   string $field 检查的字段
+     * @param   mixed  $value 要对比的值
      *
      * @return  bool    是否为唯一值
      */
@@ -1801,15 +1810,13 @@ class Model extends Object implements serializable, Finder
     }
 
     /**
-     * Initializes the Database Builder to given query type
+     * 初始化数据构造器
      *
-     * @param  integer $type Type of Database query
-     *
+     * @param  integer $type 要执行的SQL类型
      * @return $this
      */
     protected function _build($type)
     {
-        // Construct new builder object based on query type
         switch ($type)
         {
             case Db::SELECT:
@@ -1828,7 +1835,6 @@ class Model extends Object implements serializable, Finder
                     ->delete($this->_tableName);
         }
 
-        // Process pending database method calls
         foreach ($this->_dbPending as $method)
         {
             $name = $method['name'];
@@ -1846,10 +1852,9 @@ class Model extends Object implements serializable, Finder
     }
 
     /**
-     * Returns an array of columns to include in the select query. This method
-     * can be overridden to change the default select behavior.
+     * 返回查询时使用的select节。可以继承这块来实现复杂的功能。
      *
-     * @return array Columns to select
+     * @return array 最终select的数据
      */
     protected function _buildSelect()
     {
@@ -1857,18 +1862,16 @@ class Model extends Object implements serializable, Finder
 
         foreach ($this->_tableColumns as $column => $_)
         {
-            $columns[] = $this->_objectName . '.' . $column.' as '.$column;
+            $columns[] = $this->_objectName . '.' . $column . ' as ' . $column;
         }
 
         return $columns;
     }
 
     /**
-     * Loads a database result, either as a new record for this model, or as
-     * an iterator for multiple rows.
+     * 加载数据库结果集
      *
-     * @param  bool $multiple Return an iterator or load a single row
-     *
+     * @param  bool $multiple 是否加载多行数据
      * @return $this|mixed
      */
     protected function _loadResult($multiple = false)
@@ -1933,12 +1936,31 @@ class Model extends Object implements serializable, Finder
             return $this;
         }
     }
+
     protected function _loadMultiResultFetcherClass()
     {
         return $this->asObject() ? $this->asObject() : self::className();
     }
+
     protected function _loadMultiResultFetcherConstructor()
     {
         return [];
+    }
+
+    /**
+     * 格式化关系中的model类名
+     *
+     * @param string $className
+     * @return string
+     */
+    protected function _normalizeRelationClassName($className)
+    {
+        // 如果没带命名空间的话，那么默认使用当前命名空间
+        if (strpos($className, '\\') === false)
+        {
+            $className = self::namespaceName() . $className;
+        }
+
+        return $className;
     }
 }

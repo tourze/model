@@ -165,7 +165,7 @@ trait Field
      *
      * @var array
      */
-    public $_hasMany = [];
+    protected $_hasMany = [];
 
     /**
      * 读取/设置一对多关系
