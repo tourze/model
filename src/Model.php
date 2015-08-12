@@ -923,11 +923,11 @@ class Model extends Object implements serializable, Finder
         // Use the keys of the empty object to determine the columns
         foreach (array_keys($target->_object) as $column)
         {
+            // 为别名增加一些标志，这样加载的时候就好识别了
             $name = $targetPath . '.' . $column;
             $alias = $targetPath . ':' . $column;
 
-            // Add the prefix so that load_result can determine the relationship
-            $this->select([$name, $alias]);
+            $this->select("$name AS $alias");
         }
 
         if (isset($parent->_belongsTo[$targetAlias]))
