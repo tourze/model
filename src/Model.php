@@ -1835,10 +1835,18 @@ class Model extends Object implements serializable, Finder
                     ->delete($this->_tableName);
         }
 
+        $selectList = [];
         foreach ($this->_dbPending as $method)
         {
             $name = $method['name'];
             $args = $method['args'];
+
+            // 如果是select，那么暂时先不执行
+            if ($name == 'select')
+            {
+                $selectList = Arr::merge($selectList, $args);
+                continue;
+            }
 
             $this->_dbApplied[$name] = $name;
 
@@ -1847,6 +1855,7 @@ class Model extends Object implements serializable, Finder
                 $name
             ], $args);
         }
+        $this->_dbBuilder->select($selectList);
 
         return $this;
     }
@@ -1885,7 +1894,7 @@ class Model extends Object implements serializable, Finder
         }
 
         // 默认选择所有字段
-        $this->_dbBuilder->select($this->_buildSelect());
+        $this->_dbBuilder->addSelect($this->_buildSelect());
 
         // 处理排序问题
         if ( ! isset($this->_dbApplied['orderBy']) && ! empty($this->_sorting))
