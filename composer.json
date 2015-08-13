@@ -1,6 +1,6 @@
 {
   "name": "tourze/model",
-  "description": "模型处理",
+  "description": "模型处理类库",
   "minimum-stability": "stable",
   "license": "proprietary",
   "authors": [
@@ -10,7 +10,8 @@
     }
   ],
   "require": {
-    "tourze/core": "dev-master"
+    "tourze/core": "dev-master",
+    "tourze/db": "dev-master"
   },
   "autoload": {
     "psr-4": {
@@ -24,6 +25,10 @@
     {
       "type": "git",
       "url": "https://git.oschina.net/ywisax/com.tourze.php.core.git"
+    },
+    {
+      "type": "git",
+      "url": "https://git.oschina.net/ywisax/com.tourze.php.db.git"
     },
     {
       "type": "composer",
