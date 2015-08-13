@@ -924,8 +924,8 @@ class Model extends Object implements serializable, Finder
         foreach (array_keys($target->_object) as $column)
         {
             // 为别名增加一些标志，这样加载的时候就好识别了
-            $name = $targetPath . '.' . $column;
-            $alias = $targetPath . ':' . $column;
+            $name = $this->db()->quoteIdentifier($targetPath . '.' . $column);
+            $alias = $this->db()->quoteIdentifier($targetPath . ':' . $column);
 
             $this->select("$name AS $alias");
         }
@@ -933,14 +933,14 @@ class Model extends Object implements serializable, Finder
         if (isset($parent->_belongsTo[$targetAlias]))
         {
             // Parent belongs to target, use target's primary key and parent's foreign key
-            $joinCol1 = $targetPath . '.' . $target->_primaryKey;
-            $joinCol2 = $parentPath . '.' . $parent->_belongsTo[$targetAlias]['foreignKey'];
+            $joinCol1 = $this->db()->quoteIdentifier($targetPath . '.' . $target->_primaryKey);
+            $joinCol2 = $this->db()->quoteIdentifier($parentPath . '.' . $parent->_belongsTo[$targetAlias]['foreignKey']);
         }
         else
         {
             // Parent has_one target, use parent's primary key as target's foreign key
-            $joinCol1 = $parentPath . '.' . $parent->_primaryKey;
-            $joinCol2 = $targetPath . '.' . $parent->_hasOne[$targetAlias]['foreignKey'];
+            $joinCol1 = $this->db()->quoteIdentifier($parentPath . '.' . $parent->_primaryKey);
+            $joinCol2 = $this->db()->quoteIdentifier($targetPath . '.' . $parent->_hasOne[$targetAlias]['foreignKey']);
         }
 
         // Join the related object into the result
@@ -1513,10 +1513,10 @@ class Model extends Object implements serializable, Finder
     {
         if (null === $farKeys)
         {
-            return $this->_db
+            return $this->db()
                 ->createQueryBuilder()
                 ->select('COUNT(*) as records_found')
-                ->from($this->_hasMany[$alias]['through'])
+                ->from($this->db()->quoteIdentifier($this->_hasMany[$alias]['through']))
                 ->where($this->_hasMany[$alias]['foreignKey'] . ' = :pk')
                 ->setParameter('pk', $this->pk())
                 ->execute()
@@ -1871,7 +1871,9 @@ class Model extends Object implements serializable, Finder
 
         foreach ($this->_tableColumns as $column => $_)
         {
-            $columns[] = $this->_objectName . '.' . $column . ' as ' . $column;
+            $columns[] = $this->db()->quoteIdentifier($this->_objectName . '.' . $column)
+                . ' AS '
+                . $this->db()->quoteIdentifier($column);
         }
 
         return $columns;
@@ -1885,7 +1887,7 @@ class Model extends Object implements serializable, Finder
      */
     protected function _loadResult($multiple = false)
     {
-        $this->_dbBuilder->from($this->_tableName, $this->_objectName);
+        $this->_dbBuilder->from($this->db()->quoteIdentifier($this->_tableName), $this->_objectName);
 
         // 只获取单条记录
         if (false === $multiple)
