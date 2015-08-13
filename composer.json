@@ -20,20 +20,5 @@
     "files": [
       "bootstrap.php"
     ]
-  },
-  "repositories": [
-    {
-      "type": "git",
-      "url": "https://git.oschina.net/ywisax/com.tourze.php.core.git"
-    },
-    {
-      "type": "git",
-      "url": "https://git.oschina.net/ywisax/com.tourze.php.db.git"
-    },
-    {
-      "type": "composer",
-      "url": "http://php.composer.org/repo/packagist/"
-    },
-    {"packagist": false}
-  ]
+  }
 }
