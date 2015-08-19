@@ -1692,7 +1692,14 @@ class Model extends Object implements serializable, Finder
             throw new ModelException('The model has no fields.');
         }
 
-        return $columns;
+        $result = [];
+        /** @var Column $column */
+        foreach ($columns as $column)
+        {
+            $result[$column->getName()] = $column;
+        }
+
+        return $result;
     }
 
     /**
