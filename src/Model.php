@@ -1116,6 +1116,15 @@ class Model extends Object implements serializable, Finder
         return [];
     }
 
+    /**
+     * 执行指定字段数据的过滤操作
+     *
+     * @param string $field
+     * @param mixed  $value
+     * @param array  $array
+     * @param array  $bound
+     * @return mixed
+     */
     protected function runFilterCallback($field, $value, $array, $bound = null)
     {
         if (null === $bound)
@@ -1449,22 +1458,23 @@ class Model extends Object implements serializable, Finder
     }
 
     /**
-     * Tests if this object has a relationship to a different model,
-     * or an array of different models. When providing far keys, the number
-     * of relations must equal the number of keys.
+     * 检查当前模型是否有对应的关系对象
      *
-     *     // Check if $model has the login role
-     *     $model->has('roles', self::factory('role', ['name' => 'login']));
-     *     // Check for the login role if you know the roles.id is 5
-     *     $model->has('roles', 5);
-     *     // Check for all of the following roles
-     *     $model->has('roles', [1, 2, 3, 4]);
-     *     // Check if $model has any roles
+     *     // 检查用户是否有指定角色
+     *     $user->has('roles', new Role(['name' => 'login']));
+     *
+     *     // 检查用户是否有id=5的角色
+     *     $user->has('roles', 5);
+     *
+     *     // 检查用户是否有以下角色
+     *     $user->has('roles', [1, 2, 3, 4]);
+     *
+     *     // 检查用户是否有任意角色
      *     $model->has('roles')
      *
-     * @param  string $alias   Alias of the hasMany "through" relationship
-     * @param  mixed  $farKeys Related model, primary key, or an array of primary keys
-     * @return boolean
+     * @param  string $alias   hasMany关系中的别名
+     * @param  mixed  $farKeys 模型实例、数组或整数
+     * @return bool
      */
     public function has($alias, $farKeys = null)
     {
@@ -1486,10 +1496,13 @@ class Model extends Object implements serializable, Finder
      *
      *     // Check if $model has the login role
      *     $model->has('roles', self::factory('role', ['name' => 'login']));
+     *
      *     // Check for the login role if you know the roles.id is 5
      *     $model->has('roles', 5);
+     *
      *     // Check for any of the following roles
      *     $model->has('roles', [1, 2, 3, 4]);
+     *
      *     // Check if $model has any roles
      *     $model->has('roles')
      *
@@ -1506,12 +1519,14 @@ class Model extends Object implements serializable, Finder
      * 返回当前的关系数
      *
      *     // Counts the number of times the login role is attached to $model
-     *     $model->countRelations('roles', self::factory('role', ['name' => 'login']));
+     *     $user->countRelations('roles', self::factory('role', ['name' => 'login']));
+     *
      *     // Counts the number of times role 5 is attached to $model
      *     $model->countRelations('roles', 5);
-     *     // Counts the number of times any of roles 1, 2, 3, or 4 are attached to
-     *     // $model
+     *
+     *     // Counts the number of times any of roles 1, 2, 3, or 4 are attached to $model
      *     $model->countRelations('roles', [1, 2, 3, 4]);
+     *
      *     // Counts the number roles attached to $model
      *     $model->countRelations('roles')
      *
@@ -1552,25 +1567,26 @@ class Model extends Object implements serializable, Finder
             ->setParameter('foreignKey', $this->pk())
             ->setParameter('farKeys', $farKeys, Connection::PARAM_INT_ARRAY)
             ->execute()
-            ->fetch();;
+            ->fetch();
 
-        // Rows found need to match the rows searched
         return (int) $count;
     }
 
     /**
-     * Adds a new relationship to between this model and another.
+     * 增加关系
      *
-     *     // Add the login role using a model instance
-     *     $model->add('roles', self::factory('role', ['name' => 'login']));
-     *     // Add the login role if you know the roles.id is 5
-     *     $model->add('roles', 5);
-     *     // Add multiple roles (for example, from checkboxes on a form)
-     *     $model->add('roles', [1, 2, 3, 4]);
+     *     // 为用户增加角色
+     *     $user->add('roles', new Role(['name' => 'login']));
      *
-     * @param  string $alias   Alias of the hasMany "through" relationship
-     * @param  mixed  $farKeys Related model, primary key, or an array of primary keys
-     * @return Model
+     *     // 通过角色主键来添加
+     *     $user->add('roles', 5);
+     *
+     *     // 添加多个角色
+     *     $user->add('roles', [1, 2, 3, 4]);
+     *
+     * @param  string          $alias   hasMany关系中的别名
+     * @param  Model|array|int $farKeys 模型实例、整数或数组
+     * @return $this
      */
     public function add($alias, $farKeys)
     {
@@ -1591,20 +1607,23 @@ class Model extends Object implements serializable, Finder
     }
 
     /**
-     * Removes a relationship between this model and another.
+     * 移除关系和记录
      *
-     *     // Remove a role using a model instance
-     *     $model->remove('roles', self::factory('role', ['name' => 'login']));
-     *     // Remove the role knowing the primary key
-     *     $model->remove('roles', 5);
-     *     // Remove multiple roles (for example, from checkboxes on a form)
-     *     $model->remove('roles', [1, 2, 3, 4]);
-     *     // Remove all related roles
-     *     $model->remove('roles');
+     *     // 删除用户的角色
+     *     $user->remove('roles', new Role(['name' => 'login']));
      *
-     * @param  string $alias   Alias of the hasMany "through" relationship
-     * @param  mixed  $farKeys Related model, primary key, or an array of primary keys
-     * @return Model
+     *     // 根据主键来删除
+     *     $user->remove('roles', 5);
+     *
+     *     // 传个数组来完成
+     *     $user->remove('roles', [1, 2, 3, 4]);
+     *
+     *     // 删除所有关系
+     *     $user->remove('roles');
+     *
+     * @param  string          $alias   hasMany关系中的别名
+     * @param  Model|array|int $farKeys 模型，整数或数组
+     * @return $this
      */
     public function remove($alias, $farKeys = null)
     {
@@ -1617,7 +1636,6 @@ class Model extends Object implements serializable, Finder
 
         if (null !== $farKeys)
         {
-            // Remove all the relationships in the array
             $query->where($this->_hasMany[$alias]['farKey'] . ' IN (?)');
             $query->setParameter(1, (array) $farKeys, Connection::PARAM_INT_ARRAY);
         }
@@ -1640,17 +1658,18 @@ class Model extends Object implements serializable, Finder
         {
             if ($method['name'] == 'select')
             {
-                // Ignore any selected columns for now
                 $selects[] = $method;
                 unset($this->_dbPending[$key]);
             }
         }
 
+        // 因为count的查询条件，有可能会使用到关系中的字段
+        // 所以在这里要with一下
         if ( ! empty($this->_loadWith))
         {
             foreach ($this->_loadWith as $alias)
             {
-                // Bind relationship
+                // 绑定关系
                 $this->with($alias);
             }
         }
@@ -1664,12 +1683,8 @@ class Model extends Object implements serializable, Finder
             ->fetch();
         $records = $records['records_found'];
 
-        // Add back in selected columns
         $this->_dbPending += $selects;
-
         $this->reset();
-
-        // Return the total number of records in a table
         return (int) $records;
     }
 
@@ -1703,9 +1718,9 @@ class Model extends Object implements serializable, Finder
     }
 
     /**
-     * Returns an ORM model for the given one-one related alias
+     * 返回一个一对一对应关系的对象
      *
-     * @param  string $alias Alias name
+     * @param  string $alias 别名
      * @return Model
      */
     protected function _related($alias)
@@ -1757,7 +1772,7 @@ class Model extends Object implements serializable, Finder
             $this->_withApplied = [];
         }
 
-        // Reset on the next call?
+        // 下次调用时，重置数据
         $this->_dbReset = $next;
 
         return $this;
@@ -1808,7 +1823,6 @@ class Model extends Object implements serializable, Finder
      *
      * @param   string $field 检查的字段
      * @param   mixed  $value 要对比的值
-     *
      * @return  bool    是否为唯一值
      */
     public function unique($field, $value)
@@ -1965,11 +1979,21 @@ class Model extends Object implements serializable, Finder
         }
     }
 
+    /**
+     * 加载多记录时使用的类
+     *
+     * @return $this|mixed|string
+     */
     protected function _loadMultiResultFetcherClass()
     {
         return $this->asObject() ? $this->asObject() : self::className();
     }
 
+    /**
+     * 加载多记录时，传入构造方法的参数
+     *
+     * @return array
+     */
     protected function _loadMultiResultFetcherConstructor()
     {
         return [];

@@ -39,13 +39,43 @@ trait ActiveRecord
     /**
      * 精简条件查询
      *
-     * @param   mixed  $column 字段名，或附加的查询字符串
+     * @param   mixed  $column 字段名，或附加的查询字符串，或者是包含查询条件的数组
      * @param   string $op     操作符
      * @param   mixed  $value  字段值
      * @param   string $dbMethod
      */
     protected function parseWhereMethod($column, $op, $value, $dbMethod = 'where')
     {
+        // 如果是数组的话，那么按照数组格式来做
+        if (is_array($column))
+        {
+            foreach ($column as $k => $v)
+            {
+                // 如果是整数的话，那么可能是非关联的数据
+                if (is_int($k) && is_array($v))
+                {
+                    // 根据数值个数来做判断
+                    switch (count($v))
+                    {
+                        case 2:
+                            $this->parseWhereMethod($v[0], '=', $v[1], $dbMethod);
+                            break;
+                        case 3:
+                            $this->parseWhereMethod($v[0], $v[1], $v[2], $dbMethod);
+                            break;
+                        default:
+                            // 跳过
+                    }
+                }
+                else
+                {
+                    $this->parseWhereMethod($k, '=', $v, $dbMethod);
+                }
+            }
+
+            return;
+        }
+
         $column = $this->formatColumnName($column);
 
         // 如果没有操作符，那么第一个参数就当做完整的查询条件
