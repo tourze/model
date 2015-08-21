@@ -1530,9 +1530,9 @@ class Model extends Object implements serializable, Finder
      *     // Counts the number roles attached to $model
      *     $model->countRelations('roles')
      *
-     * @param  string $alias   Alias of the hasMany "through" relationship
-     * @param  mixed  $farKeys Related model, primary key, or an array of primary keys
-     * @return integer
+     * @param  string $alias   hasMany关系中的别名
+     * @param  mixed  $farKeys 模型实例、主键或者数组
+     * @return int
      */
     public function countRelations($alias, $farKeys = null)
     {
@@ -1843,7 +1843,7 @@ class Model extends Object implements serializable, Finder
     /**
      * 初始化数据构造器
      *
-     * @param  integer $type 要执行的SQL类型
+     * @param  int $type 要执行的SQL类型
      * @return $this
      */
     protected function _build($type)
