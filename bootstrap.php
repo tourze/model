@@ -1,5 +1,6 @@
 <?php
 
+/*
 use tourze\Base\Config;
 use tourze\Base\I18n;
 use tourze\Base\Message;
@@ -16,3 +17,4 @@ Message::addPath(__DIR__ . DIRECTORY_SEPARATOR . 'message' . DIRECTORY_SEPARATOR
 
 // 指定视图加载目录
 View::addPath(__DIR__ . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR);
+*/
