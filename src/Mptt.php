@@ -454,7 +454,7 @@ class MPTT extends Model
         // store the changed parent id before reload
         $parentID = $this->{$this->_parentColumn};
 
-        // Make sure we have the most upto date version of this AFTER we lock
+        // 保证数据是最新的
         $this->reload();
 
         if ( ! $target instanceof $this)
@@ -925,9 +925,8 @@ class MPTT extends Model
     /**
      * Magic get function, maps field names to class functions.
      *
-     * @access  public
-     * @param   string  name of the field to get
-     * @return  mixed
+     * @param  string $column name of the field to get
+     * @return mixed
      */
     public function __get($column)
     {
@@ -951,8 +950,6 @@ class MPTT extends Model
                 return $this->leaves();
             case 'descendants':
                 return $this->descendants();
-            case 'fulltree':
-                return $this->fullTree();
             default:
                 return parent::__get($column);
         }
@@ -964,6 +961,14 @@ class MPTT extends Model
     public function getParent()
     {
         return $this->parent();
+    }
+
+    /**
+     * @return MPTT[]
+     */
+    public function getFullTree()
+    {
+        return $this->fullTree();
     }
 
     /**
