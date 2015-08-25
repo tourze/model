@@ -477,13 +477,12 @@ class Model extends Object implements serializable, Finder
     }
 
     /**
-     * Handles retrieval of all model values, relationships, and metadata.
+     * 读取指定模型值Handles retrieval of all model values, relationships, and metadata.
      *
      * [!!] 一般情况下，不用覆盖整个方法
      *
-     * @param   string $name Column name
-     *
-     * @return  mixed
+     * @param  string $name Column name
+     * @return mixed
      */
     public function __get($name)
     {
