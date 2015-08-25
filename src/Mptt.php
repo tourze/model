@@ -5,11 +5,11 @@ namespace tourze\Model;
 use tourze\Base\Security\Validation;
 use tourze\Model\Exception\ModelException;
 use tourze\Model\Exception\ValidationException;
-use tourze\View\View;
 
 /**
  * MPTT模型类
  *
+ * @property MPTT parent
  * @package tourze\Model
  */
 class MPTT extends Model
@@ -47,6 +47,7 @@ class MPTT extends Model
     {
         parent::init();
 
+        // 默认排序
         if ( ! isset($this->_sorting))
         {
             $this->_sorting = [$this->_leftColumn => 'ASC'];
@@ -970,28 +971,4 @@ class MPTT extends Model
     {
         return $this->fullTree();
     }
-
-    /**
-     * Generates the HTML for this node's descendants
-     *
-     * @param string  $style     pagination style.
-     * @param boolean $self      include this node or not.
-     * @param string  $direction direction to order the left column by.
-     * @return View
-     */
-    public function render_descendants($style = null, $self = false, $direction = 'ASC')
-    {
-        $nodes = $this->descendants($self, $direction);
-
-        if ($style === null)
-        {
-            $style = $this->_style;
-        }
-
-        return View::factory($style, [
-            'nodes'        => $nodes,
-            'level_column' => $this->_levelColumn,
-        ]);
-    }
-
 }
