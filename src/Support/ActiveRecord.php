@@ -2,6 +2,7 @@
 
 namespace tourze\Model\Support;
 use Doctrine\DBAL\Connection;
+use tourze\Base\Helper\Arr;
 
 /**
  * 链式调用的接口实现
