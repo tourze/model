@@ -26,7 +26,7 @@
       "tourze\\Model\\": "tests/"
     },
     "files": [
-      "bootstrap.php"
+      "bootstrap-dev.php"
     ]
   }
 }
