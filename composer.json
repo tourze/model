@@ -20,5 +20,13 @@
     "files": [
       "bootstrap.php"
     ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "tourze\\Model\\": "tests/"
+    },
+    "files": [
+      "bootstrap.php"
+    ]
   }
 }
