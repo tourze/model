@@ -10,7 +10,7 @@
     }
   ],
   "require": {
-    "tourze/core": "dev-master",
+    "tourze/base": "dev-master",
     "tourze/db": "dev-master"
   },
   "autoload": {

@@ -9,6 +9,7 @@ use Doctrine\DBAL\Schema\Column;
 use PDO;
 use ReflectionFunction;
 use ReflectionMethod;
+use tourze\Base\Base;
 use tourze\Base\Exception\InvalidCallException;
 use tourze\Base\Helper\Arr;
 use tourze\Base\Object;
@@ -974,6 +975,8 @@ class Model extends Object implements serializable, Finder
             throw new ModelException('Method find() cannot be called on loaded objects');
         }
 
+        Base::getLog()->debug(__METHOD__ . ' find single record');
+
         if (is_array($conditions))
         {
             foreach ($conditions as $k => $v)
@@ -1014,6 +1017,8 @@ class Model extends Object implements serializable, Finder
         {
             throw new ModelException('Method findAll() cannot be called on loaded objects');
         }
+
+        Base::getLog()->debug(__METHOD__ . ' find multiple records');
 
         if (is_array($conditions))
         {
@@ -1191,7 +1196,6 @@ class Model extends Object implements serializable, Finder
      *
      * @param string $field 字段名
      * @param string $value 过滤的值
-     *
      * @return string
      */
     protected function runFilter($field, $value)
@@ -1222,7 +1226,7 @@ class Model extends Object implements serializable, Finder
     }
 
     /**
-     * Filter definitions for validation
+     * 字段过滤设置
      *
      * @return array
      */
@@ -1277,6 +1281,8 @@ class Model extends Object implements serializable, Finder
                 ':model' => $this->_objectName
             ]);
         }
+
+        Base::getLog()->debug(__METHOD__ . ' create record');
 
         // Require model validation before saving
         if ( ! $this->_valid || $validation)
@@ -1345,6 +1351,8 @@ class Model extends Object implements serializable, Finder
                 ':model' => $this->_objectName
             ]);
         }
+
+        Base::getLog()->debug(__METHOD__ . ' update record');
 
         // Run validation if the model isn't valid or we have additional validation rules.
         if ( ! $this->_valid || $validation)
@@ -1431,6 +1439,8 @@ class Model extends Object implements serializable, Finder
                 ':model' => $this->_objectName
             ]);
         }
+
+        Base::getLog()->debug(__METHOD__ . ' delete record');
 
         $id = $this->pk();
         $this->_db->createQueryBuilder()
