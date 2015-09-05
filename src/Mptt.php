@@ -8,7 +8,9 @@ use tourze\Model\Exception\ValidationException;
 
 /**
  * MPTT模型类
+ * 这个MPTT类，目前还只支持mysql
  *
+ * @todo 修改为所有DB类型都支持
  * @property MPTT parent
  * @package tourze\Model
  */
