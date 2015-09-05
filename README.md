@@ -1,1 +1,3 @@
-#com.tourze.php.model
+# 模型处理组件
+
+ORM
