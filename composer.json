@@ -1,8 +1,8 @@
 {
   "name": "tourze/model",
-  "description": "模型处理类库",
+  "description": "模型处理模块",
   "minimum-stability": "stable",
-  "license": "proprietary",
+  "license": "MIT",
   "authors": [
     {
       "name": "tourze",
