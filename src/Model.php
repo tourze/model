@@ -1008,10 +1008,11 @@ class Model extends Object implements serializable, Finder
      *
      * @param null $conditions
      *
-     * @return mixed|$this
-     * @throws ModelException
+     * @param null $indexKey
+     * @return $this|mixed
+     * @throws \tourze\Model\Exception\ModelException
      */
-    public function findAll($conditions = null)
+    public function findAll($conditions = null, $indexKey = null)
     {
         if ($this->_loaded)
         {
@@ -1043,7 +1044,19 @@ class Model extends Object implements serializable, Finder
 
         $this->_build(Db::SELECT);
 
-        return $this->_loadResult(true);
+        $data = $this->_loadResult(true);
+        if ($indexKey !== null)
+        {
+            /** @var static $model */
+            foreach ($data as $key => $model)
+            {
+                $newKey = $model->get($indexKey);
+                $data[$newKey] = $model;
+                unset($data[$key]);
+            }
+        }
+
+        return $data;
     }
 
     /**
